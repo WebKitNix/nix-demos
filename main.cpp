@@ -124,6 +124,8 @@ static void didReceiveTitleForFrame(WKPageRef page, WKStringRef title, WKFrameRe
 
 int main(int argc, char* argv[])
 {
+    const char* url = argc == 2 ? argv[1] : "http://www.google.com";
+
     //ProfilerStart("/home/pi/Sample.prof");
 
     bcm_host_init();
@@ -151,7 +153,7 @@ int main(int argc, char* argv[])
     WKPageSetPageLoaderClient(page, &loaderClient);
 
     NIXViewSetSize(webView, WKSizeMake(g_state.screen_width, g_state.screen_height));
-    WKPageLoadURL(page, WKURLCreateWithUTF8CString(argv[1]));
+    WKPageLoadURL(page, WKURLCreateWithUTF8CString(url));
 
     //ProfilerFlush();
     //ProfilerStop();
