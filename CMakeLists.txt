@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 2.8)
 
 find_package(PkgConfig)
 
-pkg_check_modules(WebKitNix WebKitNix)
-pkg_check_modules(GLIB glib-2.0)
-pkg_check_modules(CAIRO cairo)
+pkg_check_modules(WebKitNix WebKitNix REQUIRED)
+pkg_check_modules(GLIB glib-2.0 REQUIRED)
+pkg_check_modules(CAIRO cairo REQUIRED)
 #pkg_check_modules(LIBPROFILER libprofiler)
 
 include_directories(Sample_INCLUDES
