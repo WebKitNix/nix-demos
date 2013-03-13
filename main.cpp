@@ -62,11 +62,7 @@ static void ogl_init(struct state *state)
     assert(result != EGL_FALSE);
 
     // ###
-    static const EGLint ctxattr[] = {
-        EGL_CONTEXT_CLIENT_VERSION, 2,
-        EGL_NONE
-    };
-    state->context = eglCreateContext(state->display, config, EGL_NO_CONTEXT, ctxattr);
+    state->context = eglCreateContext(state->display, config, EGL_NO_CONTEXT, NULL);
     assert(state->context != EGL_NO_CONTEXT);
 
     success = graphics_get_display_size(0 /* LCD */, &state->screen_width, &state->screen_height);
@@ -78,8 +74,14 @@ static void ogl_init(struct state *state)
     dst_rect.width = state->screen_width;
     dst_rect.height = state->screen_height;
 
+    src_rect.x = 0;
+    src_rect.y = 0;
+    src_rect.width = state->screen_width << 16;
+    src_rect.height = state->screen_height << 16;
+
     dispman_display = vc_dispmanx_display_open(0 /* LCD */);
     dispman_update = vc_dispmanx_update_start(0);
+
     dispman_element = vc_dispmanx_element_add(dispman_update, dispman_display,
                                               0 /* layer */, &dst_rect, 0 /* src */, &src_rect,
                                               DISPMANX_PROTECTION_NONE, 0 /* alpha */,
