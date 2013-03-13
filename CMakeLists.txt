@@ -24,6 +24,8 @@ link_directories(
     ${CAIRO_LIBRARY_DIRS}
 )
 
+add_definitions("-Wall")
+
 add_executable(Sample main.cpp)
 target_link_libraries(Sample
     ${GLIB_LIBRARIES}
