@@ -1,7 +1,12 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 # Raspberry Pi
-INCLUDE_DIRECTORIES(/opt/vc/include /opt/vc/include/interface/vcos/pthreads)
+INCLUDE_DIRECTORIES(
+    /opt/vc/include
+    /opt/vc/include/interface/vmcs_host
+    /opt/vc/include/interface/vmcs_host/linux
+    /opt/vc/include/interface/vcos/pthreads
+)
 LINK_DIRECTORIES(/opt/vc/lib)
 SET(RASPBERRYPI_LIBRARIES GLESv2 EGL bcm_host vcos vchiq_arm)
 
