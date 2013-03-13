@@ -26,8 +26,8 @@ link_directories(
 
 add_executable(Sample main.cpp)
 target_link_libraries(Sample
+    ${GLIB_LIBRARIES}
     ${WebKitNix_LIBRARIES}
-    ${RASPBERRYPI_LIBRARIES}
     GLESv2
     EGL
     bcm_host
