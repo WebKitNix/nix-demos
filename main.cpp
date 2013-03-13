@@ -51,6 +51,7 @@ static void ogl_init(struct state *state)
 
     EGLConfig config;
 
+    eglMakeCurrent(0, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     state->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     assert(state->display != EGL_NO_DISPLAY);
 
