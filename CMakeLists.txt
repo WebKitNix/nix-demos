@@ -1,25 +1,37 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8)
 
-# Raspberry Pi
-INCLUDE_DIRECTORIES(
+find_package(PkgConfig)
+
+pkg_check_modules(WebKitNix WebKitNix)
+pkg_check_modules(GLIB glib-2.0)
+pkg_check_modules(CAIRO cairo)
+#pkg_check_modules(LIBPROFILER libprofiler)
+
+include_directories(Sample_INCLUDES
     /opt/vc/include
     /opt/vc/include/interface/vmcs_host
     /opt/vc/include/interface/vmcs_host/linux
     /opt/vc/include/interface/vcos/pthreads
+    ${WebKitNix_INCLUDE_DIRS}
+    ${GLIB_INCLUDE_DIRS}
+    ${CAIRO_INCLUDE_DIRS}
 )
-LINK_DIRECTORIES(/opt/vc/lib)
-SET(RASPBERRYPI_LIBRARIES GLESv2 EGL bcm_host vcos vchiq_arm)
 
-FIND_PACKAGE(PkgConfig)
+link_directories(
+    /opt/vc/lib
+    ${WebKitNix_LIBRARY_DIRS}
+    ${GLIB_LIBRARY_DIRS}
+    ${CAIRO_LIBRARY_DIRS}
+)
 
-PKG_CHECK_MODULES(WebKitNix WebKitNix)
-PKG_CHECK_MODULES(GLIB glib-2.0)
-PKG_CHECK_MODULES(CAIRO cairo)
-#PKG_CHECK_MODULES(LIBPROFILER libprofiler)
-
-INCLUDE_DIRECTORIES(${WebKitNix_INCLUDE_DIRS} ${GLIB_INCLUDE_DIRS} ${CAIRO_INCLUDE_DIRS})
-LINK_DIRECTORIES(${WebKitNix_LIBRARY_DIRS} ${GLIB_LIBRARY_DIRS} ${CAIRO_LIBRARY_DIRS})
-
-ADD_EXECUTABLE(Sample main.cpp)
-TARGET_LINK_LIBRARIES(Sample ${WebKitNix_LIBRARIES} ${GLIB_LIBRARIES} ${CAIRO_LIBRARIES} ${RASPBERRYPI_LIBRARIES})
-#TARGET_LINK_LIBRARIES(Sample ${WebKitNix_LIBRARIES} ${GLIB_LIBRARIES} ${CAIRO_LIBRARIES} ${RASPBERRYPI_LIBRARIES} ${LIBPROFILER_LIBRARIES})
+add_executable(Sample main.cpp)
+target_link_libraries(Sample
+    ${WebKitNix_LIBRARIES}
+    ${RASPBERRYPI_LIBRARIES}
+    GLESv2
+    EGL
+    bcm_host
+    vcos
+    vchiq_arm
+#    ${LIBPROFILER_LIBRARIES}
+)
