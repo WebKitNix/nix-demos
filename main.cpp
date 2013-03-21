@@ -9,8 +9,9 @@
 #include <glib.h>
 #include <iostream>
 
-#include <EGL/egl.h>
 #include <GLES2/gl2.h>
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
 #include <bcm_host.h>
 
 #include <cstdio>
@@ -33,24 +34,28 @@ static void ogl_init(struct state *state)
     int32_t success;
     EGLBoolean result;
     EGLint num_config;
+
     static EGL_DISPMANX_WINDOW_T nativewindow;
+
     DISPMANX_ELEMENT_HANDLE_T dispman_element;
     DISPMANX_DISPLAY_HANDLE_T dispman_display;
     DISPMANX_UPDATE_HANDLE_T dispman_update;
     VC_RECT_T dst_rect;
     VC_RECT_T src_rect;
+
     static const EGLint attribute_list[] = {
         EGL_RED_SIZE, 8,
         EGL_GREEN_SIZE, 8,
         EGL_BLUE_SIZE, 8,
         EGL_ALPHA_SIZE, 8,
         EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-        EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
         EGL_NONE
     };
 
     EGLConfig config;
 
+    // We need call eglMakeCurrent beforehand to workaround a bug on rPi.
+    // https://github.com/raspberrypi/firmware/issues/99
     eglMakeCurrent(0, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     state->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     assert(state->display != EGL_NO_DISPLAY);
@@ -62,8 +67,14 @@ static void ogl_init(struct state *state)
     result = eglChooseConfig(state->display, attribute_list, &config, 1, &num_config);
     assert(result != EGL_FALSE);
 
-    // ###
-    state->context = eglCreateContext(state->display, config, EGL_NO_CONTEXT, NULL);
+    result = eglBindAPI(EGL_OPENGL_ES_API);
+    assert(EGL_FALSE != result);
+
+    static const EGLint context_attributes[] = {
+        EGL_CONTEXT_CLIENT_VERSION, 2,
+        EGL_NONE
+    };
+    state->context = eglCreateContext(state->display, config, EGL_NO_CONTEXT, context_attributes);
     assert(state->context != EGL_NO_CONTEXT);
 
     success = graphics_get_display_size(0 /* LCD */, &state->screen_width, &state->screen_height);
@@ -99,6 +110,7 @@ static void ogl_init(struct state *state)
 
     result = eglMakeCurrent(state->display, state->surface, state->surface, state->context);
     assert(result != EGL_FALSE);
+    assert(glGetError() == 0);
 }
 
 static void ogl_exit(struct state *state)
@@ -152,7 +164,10 @@ int main(int argc, char* argv[])
     WKPageLoaderClient loaderClient;
     memset(&loaderClient, 0, sizeof(loaderClient));
     loaderClient.version = kWKPageLoaderClientCurrentVersion;
+#ifdef NDEBUG
+    // There's a bug related to WKString on debug mode.
     loaderClient.didReceiveTitleForFrame = didReceiveTitleForFrame;
+#endif
     WKPageSetPageLoaderClient(page, &loaderClient);
 
     NIXViewSetSize(webView, WKSizeMake(g_state.screen_width, g_state.screen_height));
