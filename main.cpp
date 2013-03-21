@@ -164,10 +164,7 @@ int main(int argc, char* argv[])
     WKPageLoaderClient loaderClient;
     memset(&loaderClient, 0, sizeof(loaderClient));
     loaderClient.version = kWKPageLoaderClientCurrentVersion;
-#ifdef NDEBUG
-    // There's a bug related to WKString on debug mode.
     loaderClient.didReceiveTitleForFrame = didReceiveTitleForFrame;
-#endif
     WKPageSetPageLoaderClient(page, &loaderClient);
 
     NIXViewSetSize(webView, WKSizeMake(g_state.screen_width, g_state.screen_height));
