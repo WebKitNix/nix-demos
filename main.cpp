@@ -88,7 +88,7 @@ static void browser_init(const char* url)
 static void browser_loop()
 {
     GMainContext* mainContext = g_main_loop_get_context(browser.mainLoop);
-    g_main_context_iteration(mainContext, true);
+    g_main_context_iteration(mainContext, false);
 }
 
 static void mouse_position(NIXMouseEvent *event, int x, int y)
