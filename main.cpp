@@ -7,6 +7,7 @@
 #include <WebKit2/WKType.h>
 #include <WebKit2/WKURL.h>
 #include <NIXView.h>
+#include <NIXEvents.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -25,16 +26,24 @@ static struct {
     int window;
 } browser;
 
-static void viewNeedsDisplay(NIXView webView, WKRect, const void*)
+static void updateDisplay()
 {
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    NIXViewPaintToCurrentGLContext(webView);
+    NIXViewPaintToCurrentGLContext(browser.webView);
     glutSwapBuffers();
 }
 
-static void didReceiveTitleForFrame(WKPageRef, WKStringRef title, WKFrameRef, WKTypeRef, const void*)
+static void viewNeedsDisplay(NIXView webView, WKRect, const void*)
 {
+    updateDisplay();
+}
+
+static void didReceiveTitleForFrame(WKPageRef page, WKStringRef title, WKFrameRef frame, WKTypeRef, const void*)
+{
+    if (page != browser.page)
+        return;
+
     char buffer[256];
     size_t size = WKStringGetUTF8CString(title, buffer, sizeof(buffer) - 1);
     buffer[size] = 0;
@@ -42,7 +51,7 @@ static void didReceiveTitleForFrame(WKPageRef, WKStringRef title, WKFrameRef, WK
     glutSetWindowTitle(buffer);
 }
 
-void browser_init(const char* url)
+static void browser_init(const char* url)
 {
     browser.mainLoop = g_main_loop_new(0, false);
 
@@ -53,6 +62,8 @@ void browser_init(const char* url)
     memset(&browser.viewClient, 0, sizeof(NIXViewClient));
     browser.viewClient.version = kNIXViewClientCurrentVersion;
     browser.viewClient.viewNeedsDisplay = viewNeedsDisplay;
+
+    WKPageSetUseFixedLayout(browser.page, true);
 
     NIXViewSetViewClient(browser.webView, &browser.viewClient);
 
@@ -67,13 +78,52 @@ void browser_init(const char* url)
     WKPageLoadURL(browser.page, WKURLCreateWithUTF8CString(url));
 }
 
-void browser_loop()
+static void browser_loop()
 {
     GMainContext* mainContext = g_main_loop_get_context(browser.mainLoop);
     g_main_context_iteration(mainContext, true);
 }
 
-void browser_quit()
+static void mouse_position(NIXMouseEvent *event, int x, int y)
+{
+    WKPoint contentsPoint = NIXViewUserViewportToContents(browser.webView, WKPointMake(x, y));
+    event->x = contentsPoint.x;
+    event->y = contentsPoint.y;
+    event->globalX = x;
+    event->globalY = y;
+}
+
+static void browser_mouse_move(int x, int y)
+{
+    struct NIXMouseEvent event;
+    memset(&event, 0, sizeof(NIXMouseEvent));
+    event.type = kNIXInputEventTypeMouseMove;
+    mouse_position(&event, x, y);
+    NIXViewSendMouseEvent(browser.webView, &event);    
+}
+
+static void browser_mouse(int button, int state, int x, int y)
+{
+    struct NIXMouseEvent event;
+    memset(&event, 0, sizeof(NIXMouseEvent));
+    event.button = kWKEventMouseButtonLeftButton;
+    event.type = (state == GLUT_DOWN) ? kNIXInputEventTypeMouseDown : kNIXInputEventTypeMouseUp;
+    event.clickCount = 1;
+    mouse_position(&event, x, y);
+    NIXViewSendMouseEvent(browser.webView, &event);
+}
+
+static void browser_resize(int width, int height)
+{
+    if (!browser.webView)
+        return;
+
+    glViewport(0, 0, width, height);
+    NIXViewSetSize(browser.webView, WKSizeMake(width, height));
+    updateDisplay();
+}
+
+static void browser_quit()
 {
     NIXViewRelease(browser.webView);
     WKRelease(browser.context);
@@ -92,6 +142,10 @@ int main(int argc, char** argv)
     browser.window = glutCreateWindow("Loading...");
 
     glutIdleFunc(browser_loop);
+    glutMouseFunc(browser_mouse);
+    glutMotionFunc(browser_mouse_move);
+    glutPassiveMotionFunc(browser_mouse_move);
+    glutReshapeFunc(browser_resize);
     glutMainLoop();
 
     browser_quit();
