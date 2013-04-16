@@ -22,6 +22,7 @@ static struct {
     WKPageRef page;
     NIXViewClient viewClient;
     WKPageLoaderClient loaderClient;
+    int window;
 } browser;
 
 static void viewNeedsDisplay(NIXView webView, WKRect, const void*)
@@ -38,6 +39,7 @@ static void didReceiveTitleForFrame(WKPageRef, WKStringRef title, WKFrameRef, WK
     size_t size = WKStringGetUTF8CString(title, buffer, sizeof(buffer) - 1);
     buffer[size] = 0;
     printf("Title: '%s'\n", buffer);
+    glutSetWindowTitle(buffer);
 }
 
 void browser_init(const char* url)
@@ -87,7 +89,7 @@ int main(int argc, char** argv)
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(WIDTH, HEIGHT);
     glutInitWindowPosition(XPOS, YPOS);
-    glutCreateWindow("Hello World!");
+    browser.window = glutCreateWindow("Loading...");
 
     glutIdleFunc(browser_loop);
     glutMainLoop();
