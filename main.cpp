@@ -105,6 +105,7 @@ static void browser_mouse_move(int x, int y)
     struct NIXMouseEvent event;
     memset(&event, 0, sizeof(NIXMouseEvent));
     event.type = kNIXInputEventTypeMouseMove;
+    event.button = kWKEventMouseButtonNoButton;
     mouse_position(&event, x, y);
     event.timestamp = currentTime();
     NIXViewSendMouseEvent(browser.webView, &event);    
