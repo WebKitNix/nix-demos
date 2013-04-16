@@ -10,8 +10,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#define WIDTH   480
-#define HEIGHT  360
+#define WIDTH   800
+#define HEIGHT  600
 #define XPOS    300
 #define YPOS    200
 
