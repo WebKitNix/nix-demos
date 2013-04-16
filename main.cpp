@@ -13,16 +13,14 @@
 
 using namespace std;
 
-struct _browser {
+static struct {
 	GMainLoop* mainLoop;
 	WKContextRef context;
 	NIXView webView;
 	WKPageRef page;
 	NIXViewClient viewClient;
 	WKPageLoaderClient loaderClient;
-};
-
-static struct _browser browser;
+} browser;
 
 static void viewNeedsDisplay(NIXView webView, WKRect, const void*)
 {
