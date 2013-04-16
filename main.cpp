@@ -26,6 +26,13 @@ static struct {
     int window;
 } browser;
 
+double currentTime()
+{
+    GTimeVal now;
+    g_get_current_time(&now);
+    return static_cast<double>(now.tv_sec) + static_cast<double>(now.tv_usec / 1000000.0);
+}
+
 static void updateDisplay()
 {
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
@@ -99,6 +106,7 @@ static void browser_mouse_move(int x, int y)
     memset(&event, 0, sizeof(NIXMouseEvent));
     event.type = kNIXInputEventTypeMouseMove;
     mouse_position(&event, x, y);
+    event.timestamp = currentTime();
     NIXViewSendMouseEvent(browser.webView, &event);    
 }
 
@@ -110,6 +118,7 @@ static void browser_mouse(int button, int state, int x, int y)
     event.type = (state == GLUT_DOWN) ? kNIXInputEventTypeMouseDown : kNIXInputEventTypeMouseUp;
     event.clickCount = 1;
     mouse_position(&event, x, y);
+    event.timestamp = currentTime();
     NIXViewSendMouseEvent(browser.webView, &event);
 }
 
