@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
     ogl_init(&g_state);
 
     GMainLoop* mainLoop = g_main_loop_new(0, false);
-    WKContextRef context = WKContextCreate();
+    WKContextRef context = WKContextCreateWithInjectedBundlePath(WKStringCreateWithUTF8CString(SAMPLE_INJECTEDBUNDLE_DIR "libSampleInjectedBundle.so"));
     NIXView webView = NIXViewCreate(context, NULL);
     WKPageRef page = NIXViewGetPage(webView);
 

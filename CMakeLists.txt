@@ -26,6 +26,11 @@ link_directories(
 
 add_definitions("-Wall")
 
+set(Sample_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+set(Sample_INJECTEDBUNDLE_DIR ${CMAKE_BINARY_DIR}/InjectedBundle/)
+add_definitions(-DSAMPLE_INJECTEDBUNDLE_DIR="${Sample_INJECTEDBUNDLE_DIR}")
+
 add_executable(Sample main.cpp)
 target_link_libraries(Sample
     ${GLIB_LIBRARIES}
@@ -37,3 +42,5 @@ target_link_libraries(Sample
     vchiq_arm
 #    ${LIBPROFILER_LIBRARIES}
 )
+
+add_subdirectory(InjectedBundle)
