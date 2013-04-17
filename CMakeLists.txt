@@ -29,5 +29,5 @@ target_link_libraries(
 	${GLUT_LIBRARIES}
 	${OPENGL_LIBRARIES}
 	${GLIB_LIBRARIES}
-	${WebKitNix_LIBRARIES}	
+	${WebKitNix_LIBRARIES}
 )

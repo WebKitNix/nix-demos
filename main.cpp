@@ -108,7 +108,7 @@ static void browser_mouse_move(int x, int y)
     event.button = kWKEventMouseButtonNoButton;
     mouse_position(&event, x, y);
     event.timestamp = currentTime();
-    NIXViewSendMouseEvent(browser.webView, &event);    
+    NIXViewSendMouseEvent(browser.webView, &event);
 }
 
 static void browser_mouse(int button, int state, int x, int y)
