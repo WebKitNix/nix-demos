@@ -1,6 +1,6 @@
 #include <glib.h>
 #include <GL/gl.h>
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 #include <WebKit2/WKContext.h>
 #include <WebKit2/WKPage.h>
 #include <WebKit2/WKString.h>
@@ -133,6 +133,11 @@ static void browser_resize(int width, int height)
     updateDisplay();
 }
 
+static void browser_close()
+{
+    glutLeaveMainLoop();
+}
+
 static void browser_quit()
 {
     NIXViewRelease(browser.webView);
@@ -149,6 +154,7 @@ int main(int argc, char** argv)
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(WIDTH, HEIGHT);
     glutInitWindowPosition(XPOS, YPOS);
+    glutCloseFunc(browser_close);
     browser.window = glutCreateWindow("Loading...");
 
     glutIdleFunc(browser_loop);
