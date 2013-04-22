@@ -26,5 +26,5 @@ Compile it using **cmake**:
 #Running#
 
 <pre>
-  ./GlutView http://nix.openbossa.org
+  ./GlutView file:///$PWD/test.html
 </pre>
