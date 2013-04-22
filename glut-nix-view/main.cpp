@@ -62,7 +62,9 @@ static void browser_init(const char* url)
 {
     browser.mainLoop = g_main_loop_new(0, false);
 
-    browser.context = WKContextCreate();
+    WKStringRef wkStr = WKStringCreateWithUTF8CString(INJECTEDBUNDLE_DIR "libBundle.so");
+    browser.context = WKContextCreateWithInjectedBundlePath(wkStr);
+    WKRelease(wkStr);
     browser.webView = NIXViewCreate(browser.context, NULL);
     browser.page = NIXViewGetPage(browser.webView);
 

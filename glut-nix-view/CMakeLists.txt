@@ -8,6 +8,8 @@ pkg_check_modules(GLIB glib-2.0 REQUIRED)
 pkg_check_modules(WebKitNix WebKitNix REQUIRED)
 
 set(CMAKE_CXX_FLAGS "-g -Wall")
+set(GlutView_INJECTEDBUNDLE_DIR ${CMAKE_BINARY_DIR}/bundle/)
+add_definitions(-DINJECTEDBUNDLE_DIR="${GlutView_INJECTEDBUNDLE_DIR}")
 
 include_directories(GlutView_INCLUDES
 	${GLIB_INCLUDE_DIRS}
@@ -31,3 +33,5 @@ target_link_libraries(
 	${GLIB_LIBRARIES}
 	${WebKitNix_LIBRARIES}
 )
+
+add_subdirectory(bundle)
