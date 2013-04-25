@@ -14,3 +14,7 @@ Each demo is into it our directory with their own build system setup, instructio
 *   cpuinfo
 
     Nix example using an InjectedBundle to monitor CPU load (up to 8 cores).
+
+*   PyNIX
+
+    Minimal Python bindings for the Nix API written using Python's C API.
