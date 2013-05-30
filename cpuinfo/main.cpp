@@ -18,17 +18,17 @@
 static struct {
     GMainLoop* mainLoop;
     WKContextRef context;
-    NIXView webView;
+    WKViewRef webView;
     WKPageRef page;
-    NIXViewClient viewClient;
+    WKViewClient viewClient;
     WKPageLoaderClient loaderClient;
 } browser;
 
-static void viewNeedsDisplay(NIXView webView, WKRect, const void*)
+static void viewNeedsDisplay(WKViewRef webView, WKRect, const void*)
 {
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    NIXViewPaintToCurrentGLContext(webView);
+    WKViewPaintToCurrentGLContext(webView);
     glutSwapBuffers();
 }
 
@@ -45,23 +45,22 @@ void browser_init(const char* url)
     browser.mainLoop = g_main_loop_new(0, false);
 
     browser.context = WKContextCreateWithInjectedBundlePath(WKStringCreateWithUTF8CString(CPUMONITOR_INJECTEDBUNDLE_DIR "libCPUMonitorInjectedBundle.so"));
-    browser.webView = NIXViewCreate(browser.context, NULL);
-    browser.page = NIXViewGetPage(browser.webView);
+    browser.webView = WKViewCreate(browser.context, NULL);
+    browser.page = WKViewGetPage(browser.webView);
 
-    memset(&browser.viewClient, 0, sizeof(NIXViewClient));
-    browser.viewClient.version = kNIXViewClientCurrentVersion;
+    memset(&browser.viewClient, 0, sizeof(WKViewClient));
+    browser.viewClient.version = kWKViewClientCurrentVersion;
     browser.viewClient.viewNeedsDisplay = viewNeedsDisplay;
+    WKViewSetViewClient(browser.webView, &browser.viewClient);
 
-    NIXViewSetViewClient(browser.webView, &browser.viewClient);
-
-    NIXViewInitialize(browser.webView);
+    WKViewInitialize(browser.webView);
 
     memset(&browser.loaderClient, 0, sizeof(browser.loaderClient));
     browser.loaderClient.version = kWKPageLoaderClientCurrentVersion;
     browser.loaderClient.didReceiveTitleForFrame = didReceiveTitleForFrame;
     WKPageSetPageLoaderClient(browser.page, &browser.loaderClient);
 
-    NIXViewSetSize(browser.webView, WKSizeMake(WIDTH, HEIGHT));
+    WKViewSetSize(browser.webView, WKSizeMake(WIDTH, HEIGHT));
     WKPageLoadURL(browser.page, WKURLCreateWithUTF8CString(url));
 }
 
@@ -73,7 +72,7 @@ void browser_loop()
 
 void browser_quit()
 {
-    NIXViewRelease(browser.webView);
+    WKRelease(browser.webView);
     WKRelease(browser.context);
     g_main_loop_unref(browser.mainLoop);
 }
