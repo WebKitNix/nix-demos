@@ -19,9 +19,9 @@
 static struct {
     GMainLoop* mainLoop;
     WKContextRef context;
-    NIXView webView;
+    WKViewRef webView;
     WKPageRef page;
-    NIXViewClient viewClient;
+    WKViewClient viewClient;
     WKPageLoaderClient loaderClient;
     int window;
 } browser;
@@ -37,11 +37,11 @@ static void updateDisplay()
 {
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    NIXViewPaintToCurrentGLContext(browser.webView);
+    WKViewPaintToCurrentGLContext(browser.webView);
     glutSwapBuffers();
 }
 
-static void viewNeedsDisplay(NIXView webView, WKRect, const void*)
+static void viewNeedsDisplay(WKViewRef, WKRect, const void*)
 {
     updateDisplay();
 }
@@ -65,25 +65,25 @@ static void browser_init(const char* url)
     WKStringRef wkStr = WKStringCreateWithUTF8CString(INJECTEDBUNDLE_DIR "libBundle.so");
     browser.context = WKContextCreateWithInjectedBundlePath(wkStr);
     WKRelease(wkStr);
-    browser.webView = NIXViewCreate(browser.context, NULL);
-    browser.page = NIXViewGetPage(browser.webView);
+    browser.webView = WKViewCreate(browser.context, NULL);
+    browser.page = WKViewGetPage(browser.webView);
 
-    memset(&browser.viewClient, 0, sizeof(NIXViewClient));
-    browser.viewClient.version = kNIXViewClientCurrentVersion;
+    memset(&browser.viewClient, 0, sizeof(WKViewClient));
+    browser.viewClient.version = kWKViewClientCurrentVersion;
     browser.viewClient.viewNeedsDisplay = viewNeedsDisplay;
 
     WKPageSetUseFixedLayout(browser.page, true);
 
-    NIXViewSetViewClient(browser.webView, &browser.viewClient);
+    WKViewSetViewClient(browser.webView, &browser.viewClient);
 
-    NIXViewInitialize(browser.webView);
+    WKViewInitialize(browser.webView);
 
     memset(&browser.loaderClient, 0, sizeof(browser.loaderClient));
     browser.loaderClient.version = kWKPageLoaderClientCurrentVersion;
     browser.loaderClient.didReceiveTitleForFrame = didReceiveTitleForFrame;
     WKPageSetPageLoaderClient(browser.page, &browser.loaderClient);
 
-    NIXViewSetSize(browser.webView, WKSizeMake(WIDTH, HEIGHT));
+    WKViewSetSize(browser.webView, WKSizeMake(WIDTH, HEIGHT));
     WKPageLoadURL(browser.page, WKURLCreateWithUTF8CString(url));
 }
 
@@ -95,7 +95,7 @@ static void browser_loop()
 
 static void mouse_position(NIXMouseEvent *event, int x, int y)
 {
-    WKPoint contentsPoint = NIXViewUserViewportToContents(browser.webView, WKPointMake(x, y));
+    WKPoint contentsPoint = WKViewUserViewportToContents(browser.webView, WKPointMake(x, y));
     event->x = contentsPoint.x;
     event->y = contentsPoint.y;
     event->globalX = x;
@@ -131,7 +131,7 @@ static void browser_resize(int width, int height)
         return;
 
     glViewport(0, 0, width, height);
-    NIXViewSetSize(browser.webView, WKSizeMake(width, height));
+    WKViewSetSize(browser.webView, WKSizeMake(width, height));
     updateDisplay();
 }
 
@@ -142,7 +142,7 @@ static void browser_close()
 
 static void browser_quit()
 {
-    NIXViewRelease(browser.webView);
+    WKRelease(browser.webView);
     WKRelease(browser.context);
     g_main_loop_unref(browser.mainLoop);
 }
