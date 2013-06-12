@@ -1,22 +1,20 @@
+#include <glib.h>
+#include <iostream>
 #include <cstring>
 #include <cassert>
+
 #include <WebKit2/WKContext.h>
 #include <WebKit2/WKPage.h>
 #include <WebKit2/WKString.h>
 #include <WebKit2/WKType.h>
 #include <WebKit2/WKURL.h>
 #include <NIXView.h>
-#include <glib.h>
-#include <iostream>
 
-#include <GLES2/gl2.h>
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
+#include <GLES2/gl2.h>
+
 #include <bcm_host.h>
-
-#include <cstdio>
-
-//#include <google/profiler.h>
 
 struct state {
     uint32_t screen_width;
@@ -121,11 +119,11 @@ static void ogl_exit(struct state *state)
     eglTerminate(state->display);
 }
 
-static void viewNeedsDisplay(NIXView webView, WKRect, const void*)
+static void viewNeedsDisplay(WKViewRef webView, WKRect, const void*)
 {
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    NIXViewPaintToCurrentGLContext(webView);
+    WKViewPaintToCurrentGLContext(webView);
     eglSwapBuffers(g_state.display, g_state.surface);
 }
 
@@ -150,16 +148,16 @@ int main(int argc, char* argv[])
 
     GMainLoop* mainLoop = g_main_loop_new(0, false);
     WKContextRef context = WKContextCreateWithInjectedBundlePath(WKStringCreateWithUTF8CString(SAMPLE_INJECTEDBUNDLE_DIR "libSampleInjectedBundle.so"));
-    NIXView webView = NIXViewCreate(context, NULL);
-    WKPageRef page = NIXViewGetPage(webView);
+    WKViewRef webView = WKViewCreate(context, NULL);
+    WKPageRef page = WKViewGetPage(webView);
 
-    NIXViewClient viewClient;
-    memset(&viewClient, 0, sizeof(NIXViewClient));
-    viewClient.version = kNIXViewClientCurrentVersion;
+    WKViewClient viewClient;
+    memset(&viewClient, 0, sizeof(WKViewClient));
+    viewClient.version = kWKViewClientCurrentVersion;
     viewClient.viewNeedsDisplay = viewNeedsDisplay;
-    NIXViewSetViewClient(webView, &viewClient);
+    WKViewSetViewClient(webView, &viewClient);
 
-    NIXViewInitialize(webView);
+    WKViewInitialize(webView);
 
     WKPageLoaderClient loaderClient;
     memset(&loaderClient, 0, sizeof(loaderClient));
@@ -167,7 +165,7 @@ int main(int argc, char* argv[])
     loaderClient.didReceiveTitleForFrame = didReceiveTitleForFrame;
     WKPageSetPageLoaderClient(page, &loaderClient);
 
-    NIXViewSetSize(webView, WKSizeMake(g_state.screen_width, g_state.screen_height));
+    WKViewSetSize(webView, WKSizeMake(g_state.screen_width, g_state.screen_height));
     WKPageLoadURL(page, WKURLCreateWithUTF8CString(url));
 
     //ProfilerFlush();
@@ -175,7 +173,7 @@ int main(int argc, char* argv[])
 
     g_main_loop_run(mainLoop);
 
-    NIXViewRelease(webView);
+    WKRelease(webView);
     WKRelease(context);
     g_main_loop_unref(mainLoop);
 
