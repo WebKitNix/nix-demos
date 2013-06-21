@@ -8,7 +8,7 @@
 #include <WebKit2/WKString.h>
 #include <WebKit2/WKType.h>
 #include <WebKit2/WKURL.h>
-#include <NIXView.h>
+#include <WebKit2/WKView.h>
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
