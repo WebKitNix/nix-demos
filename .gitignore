@@ -1,2 +1,5 @@
+# arcanist
+.arcconfig
+
 glut-nix-view/build
 rpi-nix-view/build
