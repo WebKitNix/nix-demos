@@ -3,3 +3,7 @@
 
 glut-nix-view/build
 rpi-nix-view/build
+qt-gl-view/build
+
+# vim
+*.swp
