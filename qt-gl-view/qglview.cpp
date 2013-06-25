@@ -1,7 +1,10 @@
+#include <QMouseEvent>
+#include <QDateTime>
 #include <GL/gl.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <WebKit2/WKURL.h>
+#include <NIXView.h>
 #include "qglview.h"
 
 void webKitViewNeedsDisplay(WKViewRef view, WKRect rect, const void *clientInfo)
@@ -13,6 +16,7 @@ void webKitViewNeedsDisplay(WKViewRef view, WKRect rect, const void *clientInfo)
 QGLView::QGLView(QWidget *parent)
     : QGLWidget(parent)
 {
+    setMouseTracking(true);
     initWebKitWrapper();
 }
 
@@ -43,4 +47,60 @@ void QGLView::resizeGL(int width, int height)
 {
     glViewport(0, 0, (GLint)width, (GLint)height);
     WKViewSetSize(m_webKitWrapper->webView, WKSizeMake(width, height));
+}
+
+NIXMouseEvent QGLView::nixMouseEvent()
+{
+    NIXMouseEvent nixEvent;
+    memset(&nixEvent, 0, sizeof(NIXMouseEvent));
+    nixEvent.timestamp = QDateTime::currentDateTime().toTime_t() / 1000.0;
+    return nixEvent;
+}
+
+void QGLView::fillNIXEventMousePos(NIXMouseEvent &nixEvent, QMouseEvent *event)
+{
+    int x = event->pos().x();
+    int y = event->pos().y();
+    WKPoint contentsPoint = WKViewUserViewportToContents(m_webKitWrapper->webView, WKPointMake(x, y));
+    nixEvent.x = contentsPoint.x;
+    nixEvent.y = contentsPoint.y;
+    nixEvent.globalX = x;
+    nixEvent.globalY = y;
+}
+
+void QGLView::sendMousePressOrReleaseEvent(QMouseEvent *event)
+{
+    NIXMouseEvent nixEvent = nixMouseEvent();
+    if (event->button() == Qt::LeftButton)
+        nixEvent.button = kWKEventMouseButtonLeftButton;
+    else if (event->button() == Qt::RightButton)
+        nixEvent.button = kWKEventMouseButtonRightButton;
+    else if (event->button() == Qt::MiddleButton)
+        nixEvent.button = kWKEventMouseButtonMiddleButton;
+    else
+        nixEvent.button = kWKEventMouseButtonNoButton;
+
+    nixEvent.type = event->type() == QEvent::MouseButtonPress ? kNIXInputEventTypeMouseDown : kNIXInputEventTypeMouseUp;
+    nixEvent.clickCount = 1;
+    fillNIXEventMousePos(nixEvent, event);
+    NIXViewSendMouseEvent(m_webKitWrapper->webView, &nixEvent);
+}
+
+void QGLView::mousePressEvent(QMouseEvent *event)
+{
+    sendMousePressOrReleaseEvent(event);
+}
+
+void QGLView::mouseReleaseEvent(QMouseEvent *event)
+{
+    sendMousePressOrReleaseEvent(event);
+}
+
+void QGLView::mouseMoveEvent(QMouseEvent *event)
+{
+    NIXMouseEvent nixEvent = nixMouseEvent();
+    nixEvent.type = kNIXInputEventTypeMouseMove;
+    nixEvent.button = kWKEventMouseButtonNoButton;
+    fillNIXEventMousePos(nixEvent, event);
+    NIXViewSendMouseEvent(m_webKitWrapper->webView, &nixEvent);
 }
