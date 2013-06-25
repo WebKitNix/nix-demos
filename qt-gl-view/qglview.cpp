@@ -1,4 +1,5 @@
 #include <QMouseEvent>
+#include <QKeyEvent>
 #include <QDateTime>
 #include <GL/gl.h>
 #include <stdlib.h>
@@ -57,6 +58,14 @@ NIXMouseEvent QGLView::nixMouseEvent()
     return nixEvent;
 }
 
+NIXKeyEvent QGLView::nixKeyEvent()
+{
+    NIXKeyEvent nixEvent;
+    memset(&nixEvent, 0, sizeof(NIXKeyEvent));
+    nixEvent.timestamp = QDateTime::currentDateTime().toTime_t() / 1000.0;
+    return nixEvent;
+}
+
 void QGLView::fillNIXEventMousePos(NIXMouseEvent &nixEvent, QMouseEvent *event)
 {
     int x = event->pos().x();
@@ -103,4 +112,27 @@ void QGLView::mouseMoveEvent(QMouseEvent *event)
     nixEvent.button = kWKEventMouseButtonNoButton;
     fillNIXEventMousePos(nixEvent, event);
     NIXViewSendMouseEvent(m_webKitWrapper->webView, &nixEvent);
+}
+
+void QGLView::sendKeyPressOrReleaseEvent(QKeyEvent *event)
+{
+    NIXKeyEvent nixEvent = nixKeyEvent();
+    nixEvent.type = event->type() == QEvent::KeyPress ? kNIXInputEventTypeKeyDown : kNIXInputEventTypeKeyUp;
+    nixEvent.key = (NIXKeyEventKey) event->key();
+    if (event->key() >= Qt::Key_A && event->key() <= Qt::Key_Z)
+        nixEvent.shouldUseUpperCase = (event->modifiers() & Qt::ShiftModifier) && !(event->nativeModifiers() & 2) ||
+                                      !(event->modifiers() & Qt::ShiftModifier) && (event->nativeModifiers() & 2);
+
+    nixEvent.isKeypad = event->modifiers() & Qt::KeypadModifier;
+    NIXViewSendKeyEvent(m_webKitWrapper->webView, &nixEvent);
+}
+
+void QGLView::keyPressEvent(QKeyEvent *event)
+{
+    sendKeyPressOrReleaseEvent(event);
+}
+
+void QGLView::keyReleaseEvent(QKeyEvent *event)
+{
+    sendKeyPressOrReleaseEvent(event);
 }

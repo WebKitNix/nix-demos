@@ -6,6 +6,7 @@
 #include <NIXEvents.h>
 
 class QMouseEvent;
+class QKeyEvent;
 
 typedef struct {
     WKContextRef webContext;
@@ -27,9 +28,13 @@ private:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
     NIXMouseEvent nixMouseEvent();
+    NIXKeyEvent nixKeyEvent();
     void fillNIXEventMousePos(NIXMouseEvent &nixEvent, QMouseEvent *event);
     void sendMousePressOrReleaseEvent(QMouseEvent *event);
+    void sendKeyPressOrReleaseEvent(QKeyEvent *event);
 
     void initWebKitWrapper();
     WebKitWrapper *m_webKitWrapper;
