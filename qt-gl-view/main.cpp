@@ -3,7 +3,11 @@
 
 int main(int argc, char **argv) {
     QApplication app(argc, argv);
-    QGLView view;
+    QString url;
+    if (argc > 1)
+        url = QString(argv[1]);
+
+    QGLView view(url);
     view.show();
     return app.exec();
 }

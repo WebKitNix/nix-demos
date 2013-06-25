@@ -20,7 +20,7 @@ class QGLView : public QGLWidget
 {
     Q_OBJECT
 public:
-    QGLView(QWidget *parent = 0);
+    QGLView(const QString &url, QWidget *parent = 0);
 
 private:
     void paintGL();
@@ -36,6 +36,6 @@ private:
     void sendMousePressOrReleaseEvent(QMouseEvent *event);
     void sendKeyPressOrReleaseEvent(QKeyEvent *event);
 
-    void initWebKitWrapper();
+    void initWebKitWrapper(const QString &url);
     WebKitWrapper *m_webKitWrapper;
 };

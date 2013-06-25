@@ -14,14 +14,14 @@ void webKitViewNeedsDisplay(WKViewRef view, WKRect rect, const void *clientInfo)
     qglView->updateGL();
 }
 
-QGLView::QGLView(QWidget *parent)
+QGLView::QGLView(const QString &url, QWidget *parent)
     : QGLWidget(parent)
 {
     setMouseTracking(true);
-    initWebKitWrapper();
+    initWebKitWrapper(url);
 }
 
-void QGLView::initWebKitWrapper()
+void QGLView::initWebKitWrapper(const QString &url)
 {
     m_webKitWrapper = new WebKitWrapper();
     m_webKitWrapper->webContext = WKContextCreate();
@@ -34,7 +34,7 @@ void QGLView::initWebKitWrapper()
 
     WKViewSetViewClient(m_webKitWrapper->webView, &m_webKitWrapper->webViewClient);
     WKViewInitialize(m_webKitWrapper->webView);
-    WKPageLoadURL(m_webKitWrapper->webPage, WKURLCreateWithUTF8CString("http://www.google.com"));
+    WKPageLoadURL(m_webKitWrapper->webPage, WKURLCreateWithUTF8CString(url.isEmpty() ? "http://www.google.com" : url.toUtf8().data()));
 }
 
 void QGLView::paintGL()
