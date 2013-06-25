@@ -3,6 +3,10 @@ Nix Demos
 
 Each demo is into it our directory with their own build system setup, instructions, etc.
 
+*   QtGLView
+
+    Nix demo using Qt 4.8 and opengl
+
 *   glut-nix-view
 
     Nix setup using glut.
