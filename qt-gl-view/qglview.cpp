@@ -8,7 +8,14 @@
 #include <NIXView.h>
 #include "qglview.h"
 
-void webKitViewNeedsDisplay(WKViewRef view, WKRect rect, const void *clientInfo)
+QGLView::QGLView(const QString &url, QWidget *parent)
+    : QGLWidget(parent)
+{
+    setMouseTracking(true);
+    initWebKitWrapper(url);
+}
+
+void QGLView::viewNeedsDisplay(WKViewRef view, WKRect rect, const void *clientInfo)
 {
     QGLView *qglView = (QGLView*) clientInfo;
     qglView->updateGL();
@@ -27,10 +34,11 @@ void QGLView::initWebKitWrapper(const QString &url)
     m_webKitWrapper->webContext = WKContextCreate();
     m_webKitWrapper->webView = WKViewCreate(m_webKitWrapper->webContext, NULL);
     m_webKitWrapper->webPage = WKViewGetPage(m_webKitWrapper->webView);
+
     memset(&m_webKitWrapper->webViewClient, 0, sizeof(WKViewClient));
     m_webKitWrapper->webViewClient.version = kWKViewClientCurrentVersion;
     m_webKitWrapper->webViewClient.clientInfo = this;
-    m_webKitWrapper->webViewClient.viewNeedsDisplay = webKitViewNeedsDisplay;
+    m_webKitWrapper->webViewClient.viewNeedsDisplay = QGLView::viewNeedsDisplay;
 
     WKViewSetViewClient(m_webKitWrapper->webView, &m_webKitWrapper->webViewClient);
     WKViewInitialize(m_webKitWrapper->webView);

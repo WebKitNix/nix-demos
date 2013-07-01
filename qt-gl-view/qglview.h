@@ -23,6 +23,7 @@ public:
     QGLView(const QString &url, QWidget *parent = 0);
 
 private:
+    static void viewNeedsDisplay(WKViewRef view, WKRect rect, const void *clientInfo);
     void paintGL();
     void resizeGL(int width, int height);
     void mousePressEvent(QMouseEvent *event);
