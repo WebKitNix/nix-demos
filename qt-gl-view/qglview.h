@@ -13,6 +13,7 @@ typedef struct {
     WKViewRef webView;
     WKPageRef webPage;
     WKViewClient webViewClient;
+    WKPageUIClient pageUIClient;
     WKPageLoaderClient webPageLoaderClient;
 } WebKitWrapper;
 
@@ -20,10 +21,16 @@ class QGLView : public QGLWidget
 {
     Q_OBJECT
 public:
-    QGLView(const QString &url, QWidget *parent = 0);
+    QGLView(QWidget *parent = 0);
+
+    WebKitWrapper *webKitWrapper() const;
+
+    void initWebKitWrapper(const QString &url, WKPageRef parentPage = 0);
 
 private:
     static void viewNeedsDisplay(WKViewRef view, WKRect rect, const void *clientInfo);
+    static WKPageRef createNewPage(WKPageRef page, WKURLRequestRef urlRequest, WKDictionaryRef features,
+            WKEventModifiers modifiers, WKEventMouseButton mouseButton, const void *clientInfo);
     void paintGL();
     void resizeGL(int width, int height);
     void mousePressEvent(QMouseEvent *event);
@@ -37,6 +44,5 @@ private:
     void sendMousePressOrReleaseEvent(QMouseEvent *event);
     void sendKeyPressOrReleaseEvent(QKeyEvent *event);
 
-    void initWebKitWrapper(const QString &url);
     WebKitWrapper *m_webKitWrapper;
 };

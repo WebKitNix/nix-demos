@@ -5,14 +5,21 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <WebKit2/WKURL.h>
+#include <WebKit2/WKURLRequest.h>
+#include <WebKit2/WKType.h>
 #include <NIXView.h>
 #include "qglview.h"
+#include <WebKit2/WKString.h>
 
-QGLView::QGLView(const QString &url, QWidget *parent)
+QGLView::QGLView(QWidget *parent)
     : QGLWidget(parent)
 {
     setMouseTracking(true);
-    initWebKitWrapper(url);
+}
+
+WebKitWrapper *QGLView::webKitWrapper() const
+{
+    return m_webKitWrapper;
 }
 
 void QGLView::viewNeedsDisplay(WKViewRef view, WKRect rect, const void *clientInfo)
@@ -21,24 +28,44 @@ void QGLView::viewNeedsDisplay(WKViewRef view, WKRect rect, const void *clientIn
     qglView->updateGL();
 }
 
-QGLView::QGLView(const QString &url, QWidget *parent)
-    : QGLWidget(parent)
+WKPageRef QGLView::createNewPage(WKPageRef page, WKURLRequestRef urlRequest, WKDictionaryRef features,
+            WKEventModifiers modifiers, WKEventMouseButton mouseButton, const void *clientInfo)
 {
-    setMouseTracking(true);
-    initWebKitWrapper(url);
+    WKURLRef urlRef = WKURLRequestCopyURL(urlRequest);
+    WKStringRef strRef = WKURLCopyString(urlRef);
+    size_t strSize = WKStringGetLength(strRef);
+    QByteArray buffer(strSize + 1, '\0');
+    WKStringGetUTF8CString(strRef, buffer.data(), strSize + 1);
+    QString urlString(buffer);
+
+    QGLView *qglView = (QGLView*) clientInfo;
+    QGLView *newWindow = new QGLView(qglView);
+    newWindow->initWebKitWrapper(urlString, page);
+
+    newWindow->show();
+
+    WKRelease(urlRef);
+    WKRelease(strRef);
+
+    return 0;
 }
 
-void QGLView::initWebKitWrapper(const QString &url)
+void QGLView::initWebKitWrapper(const QString &url, WKPageRef parentPage)
 {
     m_webKitWrapper = new WebKitWrapper();
-    m_webKitWrapper->webContext = WKContextCreate();
-    m_webKitWrapper->webView = WKViewCreate(m_webKitWrapper->webContext, NULL);
+    m_webKitWrapper->webContext = parentPage ? WKPageGetContext(parentPage) : WKContextCreate();
+    m_webKitWrapper->webView = WKViewCreate(m_webKitWrapper->webContext, parentPage ? WKPageGetPageGroup(parentPage) : NULL);
     m_webKitWrapper->webPage = WKViewGetPage(m_webKitWrapper->webView);
 
     memset(&m_webKitWrapper->webViewClient, 0, sizeof(WKViewClient));
     m_webKitWrapper->webViewClient.version = kWKViewClientCurrentVersion;
     m_webKitWrapper->webViewClient.clientInfo = this;
     m_webKitWrapper->webViewClient.viewNeedsDisplay = QGLView::viewNeedsDisplay;
+
+    memset(&m_webKitWrapper->pageUIClient, 0, sizeof(WKPageUIClient));
+    m_webKitWrapper->pageUIClient.version = kWKPageUIClientCurrentVersion;
+    m_webKitWrapper->pageUIClient.createNewPage = QGLView::createNewPage;
+    WKPageSetPageUIClient(m_webKitWrapper->webPage, &m_webKitWrapper->pageUIClient);
 
     WKViewSetViewClient(m_webKitWrapper->webView, &m_webKitWrapper->webViewClient);
     WKViewInitialize(m_webKitWrapper->webView);

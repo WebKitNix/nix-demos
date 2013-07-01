@@ -7,7 +7,8 @@ int main(int argc, char **argv) {
     if (argc > 1)
         url = QString(argv[1]);
 
-    QGLView view(url);
+    QGLView view;
+    view.initWebKitWrapper(url);
     view.show();
     return app.exec();
 }
