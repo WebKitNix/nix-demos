@@ -42,7 +42,13 @@ void QGLView::initWebKitWrapper(const QString &url)
 
     WKViewSetViewClient(m_webKitWrapper->webView, &m_webKitWrapper->webViewClient);
     WKViewInitialize(m_webKitWrapper->webView);
-    WKPageLoadURL(m_webKitWrapper->webPage, WKURLCreateWithUTF8CString(url.isEmpty() ? "http://www.google.com" : url.toUtf8().data()));
+
+    QByteArray urlArray;
+    if (!url.isEmpty())
+        urlArray = url.toUtf8();
+
+    WKPageLoadURL(m_webKitWrapper->webPage,
+            WKURLCreateWithUTF8CString(urlArray.isEmpty() ? "http://www.google.com" : urlArray.constData()));
 }
 
 void QGLView::paintGL()
