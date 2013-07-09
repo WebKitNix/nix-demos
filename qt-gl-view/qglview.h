@@ -26,7 +26,8 @@ public:
 
     WebKitWrapper *webKitWrapper() const;
 
-    void initWebKitWrapper(const QString &url, WKPageRef parentPage = 0);
+    void initWebKitWrapper(WKPageRef parentPage = 0);
+    void loadUrl(const QString &url);
 
 private:
     static void viewNeedsDisplay(WKViewRef view, WKRect rect, const void *clientInfo);

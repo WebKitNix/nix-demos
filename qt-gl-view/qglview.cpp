@@ -3,13 +3,10 @@
 #include <QDateTime>
 #include <GL/gl.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <WebKit2/WKURL.h>
-#include <WebKit2/WKURLRequest.h>
 #include <WebKit2/WKType.h>
 #include <NIXView.h>
 #include "qglview.h"
-#include <WebKit2/WKString.h>
 
 QGLView::QGLView(QWidget *parent)
     : QGLWidget(parent)
@@ -43,26 +40,18 @@ void QGLView::viewNeedsDisplay(WKViewRef view, WKRect rect, const void *clientIn
 WKPageRef QGLView::createNewPage(WKPageRef page, WKURLRequestRef urlRequest, WKDictionaryRef features,
             WKEventModifiers modifiers, WKEventMouseButton mouseButton, const void *clientInfo)
 {
-    WKURLRef urlRef = WKURLRequestCopyURL(urlRequest);
-    WKStringRef strRef = WKURLCopyString(urlRef);
-    size_t strSize = WKStringGetLength(strRef);
-    QByteArray buffer(strSize + 1, '\0');
-    WKStringGetUTF8CString(strRef, buffer.data(), strSize + 1);
-    QString urlString(buffer);
-
     QGLView *qglView = (QGLView*) clientInfo;
     QGLView *newWindow = new QGLView(qglView);
-    newWindow->initWebKitWrapper(urlString, page);
+    newWindow->initWebKitWrapper(page);
+
+    WKRetain(newWindow->webKitWrapper()->webPage);
 
     newWindow->show();
 
-    WKRelease(urlRef);
-    WKRelease(strRef);
-
-    return 0;
+    return newWindow->webKitWrapper()->webPage;
 }
 
-void QGLView::initWebKitWrapper(const QString &url, WKPageRef parentPage)
+void QGLView::initWebKitWrapper(WKPageRef parentPage)
 {
     m_webKitWrapper = new WebKitWrapper();
     m_webKitWrapper->webContext = parentPage ? WKPageGetContext(parentPage) : WKContextCreate();
@@ -81,13 +70,15 @@ void QGLView::initWebKitWrapper(const QString &url, WKPageRef parentPage)
 
     WKViewSetViewClient(m_webKitWrapper->webView, &m_webKitWrapper->webViewClient);
     WKViewInitialize(m_webKitWrapper->webView);
+}
 
+void QGLView::loadUrl(const QString &url)
+{
     QByteArray urlArray;
-    if (!url.isEmpty())
-        urlArray = url.toUtf8();
-
-    WKPageLoadURL(m_webKitWrapper->webPage,
-            WKURLCreateWithUTF8CString(urlArray.isEmpty() ? "http://www.google.com" : urlArray.constData()));
+    urlArray = url.toUtf8();
+    WKURLRef urlRef = WKURLCreateWithUTF8CString(urlArray.constData());
+    WKPageLoadURL(m_webKitWrapper->webPage, urlRef);
+    WKRelease(urlRef);
 }
 
 void QGLView::paintGL()
