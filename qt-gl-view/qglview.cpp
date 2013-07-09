@@ -17,6 +17,18 @@ QGLView::QGLView(QWidget *parent)
     setMouseTracking(true);
 }
 
+QGLView::~QGLView()
+{
+    releaseWebKitWrapper();
+}
+
+void QGLView::releaseWebKitWrapper()
+{
+    WKPageClose(m_webKitWrapper->webPage);
+    WKRelease(m_webKitWrapper->webContext);
+    WKRelease(m_webKitWrapper->webView);
+}
+
 WebKitWrapper *QGLView::webKitWrapper() const
 {
     return m_webKitWrapper;
