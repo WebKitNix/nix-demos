@@ -26,6 +26,7 @@ struct state {
 };
 
 struct state g_state;
+static bool scheduleUpdate = false;
 
 static void ogl_init(struct state *state)
 {
@@ -118,13 +119,24 @@ static void ogl_exit(struct state *state)
     eglDestroyContext(state->display, state->context);
     eglTerminate(state->display);
 }
-
-static void viewNeedsDisplay(WKViewRef webView, WKRect, const void*)
+static int scheduledDisplayUpdate(void * data)
 {
+    WKViewRef webView = static_cast<WKViewRef>(data);
+    scheduleUpdate = false;
+    eglMakeCurrent(g_state.display,g_state.surface, g_state.surface, g_state.context);
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     WKViewPaintToCurrentGLContext(webView);
     eglSwapBuffers(g_state.display, g_state.surface);
+    return 0;
+}
+
+static void viewNeedsDisplay(WKViewRef webView, WKRect, const void*)
+{
+    if(scheduleUpdate)
+        return;
+    scheduleUpdate = true;
+    g_timeout_add(0, scheduledDisplayUpdate, (gpointer)webView);
 }
 
 static void didReceiveTitleForFrame(WKPageRef page, WKStringRef title, WKFrameRef, WKTypeRef, const void*)
