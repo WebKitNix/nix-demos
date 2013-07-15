@@ -26,6 +26,8 @@ struct state {
 };
 
 struct state g_state;
+static bool scheduleUpdate=false;
+static WKViewRef webView;
 
 static void ogl_init(struct state *state)
 {
@@ -118,13 +120,23 @@ static void ogl_exit(struct state *state)
     eglDestroyContext(state->display, state->context);
     eglTerminate(state->display);
 }
-
-static void viewNeedsDisplay(WKViewRef webView, WKRect, const void*)
+static int scheduledDisplayUpdate(void *)
 {
+    scheduleUpdate = false;
+    eglMakeCurrent(g_state.display,g_state.surface, g_state.surface, g_state.context);
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     WKViewPaintToCurrentGLContext(webView);
     eglSwapBuffers(g_state.display, g_state.surface);
+    return 0;
+}
+
+static void viewNeedsDisplay(WKViewRef webView, WKRect, const void*)
+{
+    if(scheduleUpdate)
+        return;
+    scheduleUpdate = true;
+    g_timeout_add(0, scheduledDisplayUpdate, NULL);
 }
 
 static void didReceiveTitleForFrame(WKPageRef page, WKStringRef title, WKFrameRef, WKTypeRef, const void*)
@@ -148,7 +160,7 @@ int main(int argc, char* argv[])
 
     GMainLoop* mainLoop = g_main_loop_new(0, false);
     WKContextRef context = WKContextCreateWithInjectedBundlePath(WKStringCreateWithUTF8CString(SAMPLE_INJECTEDBUNDLE_DIR "libSampleInjectedBundle.so"));
-    WKViewRef webView = WKViewCreate(context, NULL);
+    webView = WKViewCreate(context, NULL);
     WKPageRef page = WKViewGetPage(webView);
 
     WKViewClient viewClient;
