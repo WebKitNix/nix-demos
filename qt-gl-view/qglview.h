@@ -29,6 +29,9 @@ public:
     void initWebKitWrapper(WKPageRef parentPage = 0);
     void loadUrl(const QString &url);
 
+protected:
+    virtual void inputMethodEvent(QInputMethodEvent *event);
+
 private:
     static void viewNeedsDisplay(WKViewRef view, WKRect rect, const void *clientInfo);
     static WKPageRef createNewPage(WKPageRef page, WKURLRequestRef urlRequest, WKDictionaryRef features,

@@ -11,7 +11,9 @@
 QGLView::QGLView(QWidget *parent)
     : QGLWidget(parent)
 {
+    setFocusPolicy(Qt::WheelFocus);
     setMouseTracking(true);
+    setAttribute(Qt::WA_InputMethodEnabled, true);
 }
 
 QGLView::~QGLView()
@@ -138,6 +140,16 @@ void QGLView::sendMousePressOrReleaseEvent(QMouseEvent *event)
     nixEvent.clickCount = 1;
     fillNIXEventMousePos(nixEvent, event);
     NIXViewSendMouseEvent(m_webKitWrapper->webView, &nixEvent);
+}
+
+void QGLView::inputMethodEvent(QInputMethodEvent *event)
+{
+    NIXKeyEvent nixEvent = nixKeyEvent();
+    QByteArray utf8Data = event->commitString().toUtf8();
+    nixEvent.text = utf8Data.constData();
+    nixEvent.type = kNIXInputEventTypeKeyDown;
+    NIXViewSendKeyEvent(m_webKitWrapper->webView, &nixEvent);
+    event->accept();
 }
 
 void QGLView::mousePressEvent(QMouseEvent *event)
