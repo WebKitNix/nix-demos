@@ -57,6 +57,7 @@ void QGLView::initWebKitWrapper(WKPageRef parentPage)
     m_webKitWrapper->webContext = parentPage ? WKPageGetContext(parentPage) : WKContextCreate();
     m_webKitWrapper->webView = WKViewCreate(m_webKitWrapper->webContext, parentPage ? WKPageGetPageGroup(parentPage) : NULL);
     m_webKitWrapper->webPage = WKViewGetPage(m_webKitWrapper->webView);
+    NIXViewSetAutoScaleToFitContents(m_webKitWrapper->webView, false);
 
     memset(&m_webKitWrapper->webViewClient, 0, sizeof(WKViewClient));
     m_webKitWrapper->webViewClient.version = kWKViewClientCurrentVersion;
