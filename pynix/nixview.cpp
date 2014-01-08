@@ -8,15 +8,16 @@ extern "C" {
 
 typedef struct {
     PyObject_HEAD
-    NIXView cptr;
-    NIXViewClient viewClient;
+    WKViewRef cptr;
+    WKViewClientV0 viewClient;
+    NIXViewClientV0 nixViewClient;
     PyObject* viewNeedsDisplayCallback;
 } NIXViewObject;
 
 extern WKContextRef wkContextRef(PyObject*);
 extern PyObject* wrapPageRef(WKPageRef);
 
-static void viewNeedsDisplayCallback(NIXView nixView, WKRect, const void* clientInfo)
+static void viewNeedsDisplayCallback(WKViewRef nixView, WKRect, const void* clientInfo)
 {
     NIXViewObject* cppSelf = reinterpret_cast<NIXViewObject*>(const_cast<void*>(clientInfo));
     PyObject_CallFunctionObjArgs(cppSelf->viewNeedsDisplayCallback, reinterpret_cast<PyObject*>(cppSelf), NULL);
@@ -31,11 +32,15 @@ static int NIXView_Init(PyObject* self, PyObject* args, PyObject* kwds)
 
     NIXViewObject* cppSelf = reinterpret_cast<NIXViewObject*>(self);
     WKContextRef contextRef = wkContextRef(pyContext);
-    cppSelf->cptr = NIXViewCreate(contextRef, NULL);
+    cppSelf->cptr = WKViewCreate(contextRef, NULL);
 
-    memset(&cppSelf->viewClient, 0, sizeof(NIXViewClient));
-    cppSelf->viewClient.clientInfo = self;
-    cppSelf->viewClient.version = kNIXViewClientCurrentVersion;
+    memset(&cppSelf->nixViewClient, 0, sizeof(NIXViewClientV0));
+    cppSelf->nixViewClient.base.clientInfo = self;
+    cppSelf->nixViewClient.base.version = 0;
+
+    memset(&cppSelf->viewClient, 0, sizeof(WKViewClientV0));
+    cppSelf->viewClient.base.version = 0;
+    cppSelf->viewClient.base.clientInfo = self;
     cppSelf->viewClient.viewNeedsDisplay = viewNeedsDisplayCallback;
 
     return 1;
@@ -44,20 +49,20 @@ static int NIXView_Init(PyObject* self, PyObject* args, PyObject* kwds)
 static void NIXView_Dealloc(PyObject* self)
 {
     NIXViewObject* cppSelf = reinterpret_cast<NIXViewObject*>(self);
-    NIXViewRelease(cppSelf->cptr);
+    WKRelease(cppSelf->cptr);
 }
 
 static PyObject* NIXView_getPage(PyObject* self)
 {
     NIXViewObject* cppSelf = reinterpret_cast<NIXViewObject*>(self);
-    return wrapPageRef(NIXViewGetPage(cppSelf->cptr));
+    return wrapPageRef(WKViewGetPage(cppSelf->cptr));
 }
 
 static PyObject* NIXView_initialize(PyObject* self)
 {
     NIXViewObject* cppSelf = reinterpret_cast<NIXViewObject*>(self);
 
-    NIXViewInitialize(cppSelf->cptr);
+    WKViewInitialize(cppSelf->cptr);
 
     Py_RETURN_NONE;
 }
@@ -72,7 +77,7 @@ static PyObject* NIXView_setSize(PyObject* self, PyObject* pyArgs)
 
     NIXViewObject* cppSelf = reinterpret_cast<NIXViewObject*>(self);
 
-    NIXViewSetSize(cppSelf->cptr, WKSizeMake(width, height));
+    WKViewSetSize(cppSelf->cptr, WKSizeMake(width, height));
 
     Py_RETURN_NONE;
 }
@@ -81,7 +86,7 @@ static PyObject* NIXView_paintToCurrentGLContext(PyObject* self)
 {
     NIXViewObject* cppSelf = reinterpret_cast<NIXViewObject*>(self);
 
-    NIXViewPaintToCurrentGLContext(cppSelf->cptr);
+    WKViewPaintToCurrentGLContext(cppSelf->cptr);
 
     Py_RETURN_NONE;
 }
@@ -93,7 +98,7 @@ static PyObject* NIXView_setViewNeedsDisplayCallback(PyObject* self, PyObject* p
 
     NIXViewObject* cppSelf = reinterpret_cast<NIXViewObject*>(self);
     cppSelf->viewNeedsDisplayCallback = pyArg;
-    NIXViewSetViewClient(cppSelf->cptr, &cppSelf->viewClient);
+    WKViewSetViewClient(cppSelf->cptr, &cppSelf->viewClient.base);
 
     Py_RETURN_NONE;
 }
