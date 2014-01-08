@@ -18,6 +18,11 @@ class Browser(object):
         self.mainLoop = glib.MainLoop(None, False)
         self.context = nix.Context()
         self.nixView = nix.View(self.context)
+        self.windowX = 0
+        self.windowY = 0
+
+    def mouse(self, button, state, x, y):
+        e = nix.MouseEvent(x, y, self.windowX + x, self.windowY + y)
 
     def run(self):
         def viewNeedsDisplay(nixView):
@@ -40,6 +45,7 @@ class Browser(object):
         glutInitWindowSize(Browser.WIDTH, Browser.HEIGHT)
         glutInitWindowPosition(Browser.XPOS, Browser.YPOS)
         glutCreateWindow('PyNIX')
+        glutMouseFunc(self.mouse)
 
         def nixViewLoop():
             mainContext = self.mainLoop.get_context()

@@ -3,6 +3,7 @@
 extern PyTypeObject WKContextObjectType;
 extern PyTypeObject WKPageObjectType;
 extern PyTypeObject NIXViewObjectType;
+extern PyTypeObject NIXMouseEventObjectType;
 
 PyMODINIT_FUNC
 initnix(void)
@@ -14,6 +15,9 @@ initnix(void)
         return;
 
     if (PyType_Ready(&NIXViewObjectType) < 0)
+        return;
+
+    if (PyType_Ready(&NIXMouseEventObjectType) < 0)
         return;
 
     PyObject* module = Py_InitModule3("nix", NULL, "WebKitNix module.");
@@ -28,4 +32,7 @@ initnix(void)
 
     Py_INCREF(&NIXViewObjectType);
     PyModule_AddObject(module, "View", (PyObject*)&NIXViewObjectType);
+
+    Py_INCREF(&NIXMouseEventObjectType);
+    PyModule_AddObject(module, "MouseEvent", (PyObject*)&NIXMouseEventObjectType);
 }
