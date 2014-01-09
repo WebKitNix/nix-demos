@@ -9,6 +9,7 @@ set(nix_SRC
     nixmodule.cpp
     wkcontext.cpp
     wkpage.cpp
+    nixmouseevent.cpp
     nixview.cpp
 )
 

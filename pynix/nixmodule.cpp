@@ -1,4 +1,5 @@
 #include <Python.h>
+#include "nixmouseevent.h"
 
 extern PyTypeObject WKContextObjectType;
 extern PyTypeObject WKPageObjectType;
