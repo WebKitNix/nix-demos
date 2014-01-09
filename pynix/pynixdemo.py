@@ -49,7 +49,7 @@ class Browser(object):
 
         def nixViewLoop():
             mainContext = self.mainLoop.get_context()
-            mainContext.iteration(True)
+            mainContext.iteration(False)
         glutIdleFunc(nixViewLoop)
 
         glutMainLoop()
