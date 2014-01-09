@@ -23,6 +23,7 @@ class Browser(object):
 
     def mouse(self, button, state, x, y):
         e = nix.MouseEvent(x, y, self.windowX + x, self.windowY + y)
+        self.nixView.sendMouseEvent(e)
 
     def run(self):
         def viewNeedsDisplay(nixView):
