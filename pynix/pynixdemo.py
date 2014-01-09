@@ -10,18 +10,18 @@ from OpenGL.GLUT import *
 from OpenGL.GL import *
 
 class Browser(object):
-    WIDTH  = 480
-    HEIGHT = 800
     XPOS   = 100
     YPOS   = 100
     PATH = os.path.dirname(os.path.abspath(__file__))
 
-    def __init__(self):
+    def __init__(self, width=480, height=800):
         self.mainLoop = glib.MainLoop(None, False)
         self.context = nix.Context()
         self.nixView = nix.View(self.context)
         self.windowX = 0
         self.windowY = 0
+        self.width = width
+        self.height = height
 
     def mouse(self, button, state, x, y):
         e = nix.MouseEvent(button, state, x, y, self.windowX + x, self.windowY + y)
@@ -29,7 +29,7 @@ class Browser(object):
 
     def run(self):
         def viewNeedsDisplay(nixView):
-            glViewport(0, 0, Browser.WIDTH, Browser.HEIGHT)
+            glViewport(0, 0, self.width, self.height)
             glClearColor(0.4, 0.4, 0.4, 1.0)
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
             nixView.paintToCurrentGLContext()
@@ -39,14 +39,14 @@ class Browser(object):
 
         self.nixView.initialize()
 
-        self.nixView.setSize(Browser.WIDTH, Browser.HEIGHT)
+        self.nixView.setSize(self.width, self.height)
         page = self.nixView.getPage()
         print('file://%s/index.html' % Browser.PATH)
         page.loadURL('file://%s/ui/index.html' % Browser.PATH)
 
         glutInit(sys.argv)
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
-        glutInitWindowSize(Browser.WIDTH, Browser.HEIGHT)
+        glutInitWindowSize(self.width, self.height)
         glutInitWindowPosition(Browser.XPOS, Browser.YPOS)
         glutCreateWindow('PyNIX')
         glutMouseFunc(self.mouse)
