@@ -5,25 +5,44 @@ extern "C" {
 
 static int NIXMouseEvent_Init(PyObject* self, PyObject* args, PyObject* kwds)
 {
+    static int clickCount = 0;
+    int button = 0;
+    int state = 0;
     int x = 0;
     int y = 0;
     int globalX = 0;
     int globalY = 0;
-    int ok = PyArg_ParseTuple(args, "iiii", &x, &y, &globalX, &globalY);
+    int ok = PyArg_ParseTuple(args, "iiiiii", &button, &state, &x, &y, &globalX, &globalY);
     if (!ok)
         return 0;
 
     NIXMouseEventObject *s = reinterpret_cast<NIXMouseEventObject*>(self);
 
-    s->event.type = kNIXInputEventTypeMouseDown;
-    s->event.button = kWKEventMouseButtonLeftButton;
+    if (state == 0) {
+        clickCount++;
+        s->event.type = kNIXInputEventTypeMouseDown;
+    }
+    else {
+        clickCount--;
+        s->event.type = kNIXInputEventTypeMouseUp;
+    }
+
+    if (button == 0)
+        s->event.button = kWKEventMouseButtonLeftButton;
+    else if (button == 1)
+        s->event.button = kWKEventMouseButtonMiddleButton;
+    else if (button == 2)
+        s->event.button = kWKEventMouseButtonRightButton;
+    else
+        s->event.button = kWKEventMouseButtonNoButton;
+
     s->event.x = x;
     s->event.y = y;
     s->event.globalX = globalX;
     s->event.globalY = globalY;
     time_t t;
     s->event.timestamp = ((double) time(&t)) / 1000.0;
-    s->event.clickCount = 1;
+    s->event.clickCount = clickCount;
     s->event.modifiers = 0;
 
     return 1;
