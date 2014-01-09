@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <title>NIXOS</title>
+    <meta content="width=480" name="viewport" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script type="text/javascript">
+    function openUrl(url) {
+        window.location.href = url;
+    }
+    function animateLayers() {
+        var layer0 = document.getElementById("layer0");
+        layer0.style.webkitTransform = "translate(0px, 0)";
+        layer0.style.transform = "translate(0px, 0)";
+        layer0.style.OTransform = "translate(0px, 0)";
+        layer0.style.msTransform = "translate(0px, 0)";
+        layer0.style.MozTransform = "translate(0px, 0)";
+        var layer1 = document.getElementById("layer1");
+        if (layer1 != undefined) {
+            layer1.style.webkitTransform = "translate(160px, 0)";
+            layer1.style.transform = "translate(160px, 0)";
+            layer1.style.OTransform = "translate(160px, 0)";
+            layer1.style.msTransform = "translate(160px, 0)";
+            layer1.style.MozTransform = "translate(160px, 0)";
+        }
+        var layer2 = document.getElementById("layer2");
+        if (layer2 != undefined) {
+            layer2.style.webkitTransform = "translate(320px, 0)";
+            layer2.style.transform = "translate(320px, 0)";
+            layer2.style.OTransform = "translate(320px, 0)";
+            layer2.style.msTransform = "translate(320px, 0)";
+            layer2.style.MozTransform = "translate(320px, 0)";
+        }
+    }
+
+    function createEntry(title, url) {
+        var divButton = document.createElement("div");
+        divButton.className = "button";
+        divButton.setAttribute("onclick", "openUrl('" + url + "')");
+
+        var divLink = document.createElement("div");
+        divLink.className = "link";
+
+        var pLabelMain = document.createElement("p");
+        pLabelMain.className = "labelMain";
+        pLabelMain.innerHTML = title[0];
+
+        var br = document.createElement("br");
+
+        var pLabel = document.createElement("p");
+        pLabel.className = "label";
+        pLabel.innerHTML = title;
+
+        divLink.appendChild(pLabelMain);
+        divLink.appendChild(br);
+        divLink.appendChild(pLabel);
+
+        divButton.appendChild(divLink);
+
+        return divButton;
+    }
+
+    var entryCounter = 0;
+
+    function appendEntry (title, url) {
+        function get(l) { return document.getElementById(l); }
+        var layers = [get("layer0"), get("layer1"), get("layer2") ];
+        layers[entryCounter].appendChild(createEntry(title, url));
+        entryCounter = (entryCounter + 1) % layers.length;
+    }
+
+    function init() {
+        appendEntry("Globo", "http://globo.com");
+        appendEntry("G1", "http://g1.globo.com");
+        animateLayers();
+    }
+
+    </script>
+    </head>
+    <body onload="init()">
+        <div id="top" onClick="window.location.reload();"></div>
+        <div id="content">
+        <div class="shelf"></div>
+        <div class="shelf"></div>
+        <div class="shelf"></div>
+        <div class="shelf"></div>
+        <div class="animatedLayer" id="layer0">
+        </div>
+        <div class="animatedLayer" id="layer1"></div>
+        <div class="animatedLayer" id="layer2"></div>
+        <div id="bottom"></div>
+    </body>
+</html>

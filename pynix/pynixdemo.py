@@ -4,15 +4,17 @@
 import nix
 
 import sys
+import os
 import glib
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 
 class Browser(object):
-    WIDTH  = 800
-    HEIGHT = 600
+    WIDTH  = 480
+    HEIGHT = 800
     XPOS   = 100
     YPOS   = 100
+    PATH = os.path.dirname(os.path.abspath(__file__))
 
     def __init__(self):
         self.mainLoop = glib.MainLoop(None, False)
@@ -39,7 +41,8 @@ class Browser(object):
 
         self.nixView.setSize(Browser.WIDTH, Browser.HEIGHT)
         page = self.nixView.getPage()
-        page.loadURL('http://nix.openbossa.org/')
+        print('file://%s/index.html' % Browser.PATH)
+        page.loadURL('file://%s/ui/index.html' % Browser.PATH)
 
         glutInit(sys.argv)
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)

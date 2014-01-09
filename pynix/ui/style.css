@@ -1,0 +1,155 @@
+body {
+    background-color: #ebebeb;
+    height: 854px;
+    width: 480px;
+    font-size: 35px;
+    font-weight: bold;
+    color: #768f9c;
+    font-family: "NokiaPureTextLight";
+    margin: 0px;
+}
+
+@font-face {
+    font-family: 'NokiaPureTextBold';
+    src: url('fonts/nokiapuretextbold-webfont.eot'),
+    url('fonts/nokiapuretextbold-webfont.eot.1') format('embedded-opentype'),
+         url('fonts/nokiapuretextbold-webfont.woff') format('woff'),
+         url('fonts/nokiapuretextbold-webfont.ttf') format('truetype'),
+         url('fonts/nokiapuretextbold-webfont.svg') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'NokiaPureTextLight';
+    src: url('fonts/nokiapuretextlight-webfont.eot'),
+    url('fonts/nokiapuretextlight-webfont.eot.1') format('embedded-opentype'),
+         url('fonts/nokiapuretextlight-webfont.woff') format('woff'),
+         url('fonts/nokiapuretextlight-webfont.ttf') format('truetype'),
+         url('fonts/nokiapuretextlight-webfont.svg') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+#top {
+    width: 480px;
+    height: 185px;
+    background-image: url("shelf_top.png");
+}
+
+#bottom {
+    width: 480px;
+    height: 25px;
+    background-image: url("shelf_bottom.png");
+    /*border: 2px solid blue;*/
+}
+
+#content {
+    /*border: 2px solid black;*/
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.shelf {
+    width: 480px;
+    height: 161px;
+    /*border: 2px solid yellow;*/
+    background-repeat: no-repeat;
+    background-image: url("shelf.png");
+    display: block;
+    margin: 0px;
+}
+
+.dummy {
+    width: 480px;
+    height: 161px;
+    display: block;
+    margin: 0px;
+}
+
+.animatedLayer {
+    height: 644px;
+    width: 160px;
+    /*border: 2px solid red;*/
+    position: absolute;
+    top: 0px;
+    -ms-transition:all 1.0s ease-in-out;
+    -webkit-transition:all 1.0s ease-in-out;
+    -moz-transition:all 1.0s ease-in-out;
+    -o-transition:all 1.0s ease-in-out;
+    transition:all 1.0s ease-in-out;
+}
+
+#layer0 {
+    transform:translate(-340px, 0);
+    -ms-transform:translate(-340px, 0); /* IE 9 */
+    -moz-transform:translate(-340px, 0); /* Firefox */
+    -webkit-transform: translate(-340px, 0); /* Safari and Chrome */
+    -o-transform:translate(-340px, 0); /* Opera */
+}
+
+#layer1 {
+    transform:translate(-250px, 0);
+    -ms-transform:translate(-250px, 0); /* IE 9 */
+    -moz-transform:translate(-250px, 0); /* Firefox */
+    -webkit-transform: translate(-250px, 0); /* Safari and Chrome */
+    -o-transform:translate(-250px, 0); /* Opera */
+}
+
+#layer2 {
+    transform:translate(-120px, 0);
+    -ms-transform:translate(-120px, 0); /* IE 9 */
+    -moz-transform:translate(-120px, 0); /* Firefox */
+    -webkit-transform: translate(-120px, 0); /* Safari and Chrome */
+    -o-transform:translate(-120px, 0); /* Opera */
+}
+
+.button{
+    display: inline-block;
+    height: 122px;
+    width: 160px;
+    margin-top: 23px;
+    margin-bottom: 6px;
+    background-repeat: no-repeat;
+    background-image: url("thumb.png");
+}
+
+.link {
+    display: inline;
+    /*border: 2px solid red;*/
+    float: right;
+    height: 130px;
+    text-align: right;
+    cursor:pointer;
+}
+
+.labelMain {
+    /*border: 2px solid green;*/
+    margin-right: 33px;
+    margin-top: 3px;
+    margin-bottom: 0px;
+    display: block;
+    font-size: 40px;
+    font-family: "NokiaPureTextBold";
+    color: #A4A7AA;
+    text-align: right;
+    float: right;
+}
+
+.label {
+    width: 100px;
+    margin-top: -8px;
+    margin-right: 33px;
+    display: block;
+    font-size: 20px;
+    font-family: "NokiaPureTextLight";
+    color: #A4A7AA;
+    text-align: right;
+    float: right;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    overflow: hidden;
+}
