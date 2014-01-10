@@ -22,9 +22,11 @@ static int NIXMouseEvent_Init(PyObject* self, PyObject* args, PyObject* kwds)
         clickCount++;
         s->event.type = kNIXInputEventTypeMouseDown;
     }
-    else {
+    else if (state == 1) {
         clickCount--;
         s->event.type = kNIXInputEventTypeMouseUp;
+    } else if (state == 2) {
+        s->event.type = kNIXInputEventTypeMouseMove;
     }
 
     if (button == 0)

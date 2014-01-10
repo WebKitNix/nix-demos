@@ -6,6 +6,7 @@ import nix
 import sys
 import os
 import glib
+from collections import defaultdict
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 
@@ -22,9 +23,20 @@ class Browser(object):
         self.windowY = 0
         self.width = width
         self.height = height
+        self.mouseState = defaultdict(int)
 
     def mouse(self, button, state, x, y):
         e = nix.MouseEvent(button, state, x, y, self.windowX + x, self.windowY + y)
+        self.mouseState[button] = state
+        print self, button, state, x, y
+        self.nixView.sendMouseEvent(e)
+
+    def mouseMove(self, x, y):
+        for button in self.mouseState:
+            if self.mouseState[button] == GLUT_DOWN:
+                break
+
+        e = nix.MouseEvent(button, nix.MOVE_EVENT, x, y, self.windowX + x, self.windowY + y)
         self.nixView.sendMouseEvent(e)
 
     def run(self):
@@ -50,6 +62,7 @@ class Browser(object):
         glutInitWindowPosition(Browser.XPOS, Browser.YPOS)
         glutCreateWindow('PyNIX')
         glutMouseFunc(self.mouse)
+        glutMotionFunc(self.mouseMove)
 
         def nixViewLoop():
             mainContext = self.mainLoop.get_context()

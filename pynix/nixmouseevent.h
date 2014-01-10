@@ -12,6 +12,13 @@ typedef struct {
     NIXMouseEvent event;
 } NIXMouseEventObject;
 
+enum NixMouseEvents {
+	MOUSE_DOWN_EVENT = 0,
+	MOUSE_UP_EVENT = 1,
+	MOUSE_MOVE_EVENT = 2
+};
+typedef NixMouseEvents NixMouseEvents;
+
 extern PyTypeObject NIXMouseEventObjectType;
 
 }

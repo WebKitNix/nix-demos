@@ -36,4 +36,7 @@ initnix(void)
 
     Py_INCREF(&NIXMouseEventObjectType);
     PyModule_AddObject(module, "MouseEvent", (PyObject*)&NIXMouseEventObjectType);
+
+    // Constants
+    PyModule_AddObject(module, "MOVE_EVENT", PyInt_FromLong(MOUSE_MOVE_EVENT));
 }
