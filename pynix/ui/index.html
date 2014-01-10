@@ -4,10 +4,8 @@
     <title>NIXOS</title>
     <meta content="width=480" name="viewport" />
     <link rel="stylesheet" type="text/css" href="style.css" />
+    <script type="text/javascript" src="nixos.js"></script>
     <script type="text/javascript">
-    function openUrl(url) {
-        window.location.href = url;
-    }
     function animateLayers() {
         var layer0 = document.getElementById("layer0");
         layer0.style.webkitTransform = "translate(0px, 0)";
@@ -33,10 +31,10 @@
         }
     }
 
-    function createEntry(title, url) {
+    function createEntry(url, title) {
         var divButton = document.createElement("div");
         divButton.className = "button";
-        divButton.setAttribute("onclick", "openUrl('" + url + "')");
+        divButton.setAttribute("onclick", "NIXOS.openUrl('" + url + "')");
 
         var divLink = document.createElement("div");
         divLink.className = "link";
@@ -62,7 +60,7 @@
 
     var entryCounter = 0;
 
-    function appendEntry (title, url) {
+    function appendEntry (url, title) {
         function get(l) { return document.getElementById(l); }
         var layers = [get("layer0"), get("layer1"), get("layer2") ];
         layers[entryCounter].appendChild(createEntry(title, url));
@@ -70,9 +68,17 @@
     }
 
     function init() {
-        appendEntry("Globo", "http://globo.com");
-        appendEntry("G1", "http://g1.globo.com");
-        animateLayers();
+        NIXOS.registerUrlOpener(function(url) {
+            window.location.href = url;
+        });
+        NIXOS.addBookmark("Globo", "http://globo.com");
+        NIXOS.addBookmark("G1", "http://g1.globo.com");
+        NIXOS.getBookmarks(function (bookmarks) {
+            for (var i in bookmarks) {
+                appendEntry(bookmarks[i].url, bookmarks[i].title)
+            }
+            animateLayers();
+        });
     }
 
     </script>
